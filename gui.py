@@ -5,9 +5,23 @@ import tkinter as tk
 
 class Gui:
     '''Класс создает графический интерфейс'''
-    def __init__(self, title='Передача файлов', my_ip=None):
+    def __init__(self, title='Передача зашифрованных файлов', my_ip=None):
         self.root = tk.Tk()
         self.root.title(title)
+        self.root.main_menu = tk.Menu()
+        self.root.file_menu = tk.Menu(tearoff=0)
+        self.root.file_menu.add_command(label="New", command=self.new_text)
+        self.root.file_menu.add_command(label="Save")
+        self.root.file_menu.add_command(label="Open")
+        self.root.file_menu.add_separator()
+        self.root.file_menu.add_command(label="Exit")
+
+        self.root.main_menu.add_cascade(label="File", menu=self.root.file_menu)
+        self.root.main_menu.add_cascade(label="Help")
+
+
+
+
         self.my_ip = my_ip
         self.out_ip = 0
 
@@ -34,6 +48,7 @@ class Gui:
 
     def call_gui(self):
         '''Вызов окна программы'''
+        self.root.config(menu=self.root.main_menu)
         self.draw_widgets()
         self.root.mainloop()
 
@@ -53,6 +68,9 @@ class Gui:
 
         self.txt_edit.grid(row=0, column=1, sticky='ew')
         self.lb_out_text.grid(row=1, column=1,sticky='n')
+
+    def new_text(self):
+        self.txt_edit.delete('1.0', tk.END)
 
     def search(self):
         pass
