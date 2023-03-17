@@ -9,6 +9,7 @@ class Networking:
     '''
     def __init__(self, type_socket, broadcast=False):
         self.BUFFER_SIZE = var.BUFFER_SIZE # размер буфера для примем сообщений
+        self.my_address = var.MY_ADDRESS
         self.port_no = var.PORT_NO
         self.timeout = var.TIME_OUT
         self.my_socket = self.get_socket(type_socket, broadcast=broadcast)
@@ -33,9 +34,10 @@ class Networking:
         if broadcast:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         sock.settimeout(timeout)
+        print(type_socket, ' socked created')
         return sock
 
-    def recv_json(self):
+    def recv_json(self) -> tuple:
         '''
         Получает JSON из сокета
         :return: кортедж(dict, адрес)
@@ -51,7 +53,7 @@ class Networking:
             pass  #  ничего не пришло
         return None, None
 
-    def recv_json_until(self, predicate, timeout):
+    def recv_json_until(self, predicate, timeout: float) -> tuple:
         '''
         Несколько раз пытается получить JSON в течение timeout секунд, пока на полученных данных
         функция predicate не вернет True
@@ -74,7 +76,7 @@ class Networking:
         print('bind to= ', to)
         self.my_socket.bind((to, self.port_no))
 
-    def send_json(self, j, to):
+    def send_json(self, j: str, to):
         '''
         Отправляет JSON данные
         :param j: данные
@@ -94,12 +96,12 @@ class Networking:
         print('closing socket')
         self.my_socket.close()
 
-    def receive_data(self):
+    def receive_data(self) -> str:
         '''
         Принимает данные по TCP пакетами по BUFFER_SIZE байт
         '''
-        my_socket.bind((var.MY_ADDRESS, var.PORT_NO))
-        my_socket.listen(True)
+        self.my_socket.bind((self.my_address, self.port_no))
+        self.my_socket.listen(True)
 
         print('Ожидание клиента...')
         conn, address = self.my_socket.accept()
@@ -112,23 +114,26 @@ class Networking:
                 temp += chunk
             else:
                 break
-
+        print('data in recv', temp)
         print('Данные получены')
         self.__del__
         print('Соединение закрыто')
         return temp
 
-    def send_data(self, data):
+    def send_data(self, data: str):
         '''
         Отправляет данные по TCP пакетами по BUFFER_SIZE байт
         '''
         print('Подключение к серверу.')
+        print('data in send', data)
+        self.my_socket.connect((self.my_address, self.port_no))
         while data:
             print('Передача данных...')
             read_bytes = data[:self.BUFFER_SIZE]
             data = data[self.BUFFER_SIZE:]
             self.my_socket.send(read_bytes)
         print('Отправлено.')
+        self.__del__
         print('Соединение закрыто.')
 
 
