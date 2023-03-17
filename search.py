@@ -17,7 +17,7 @@ class Search:
         self.my_socket = network.Networking('UDP', broadcast=True)
         self.my_socket.bind()
 
-    def send_action(self, action, data=None):
+    def send_action(self, action: str, data=None):
         '''
         Форматирует JSON для обмена командами
         :param action: имя команды
@@ -26,18 +26,16 @@ class Search:
         data = data or {}
         self.my_socket.send_json_broadcast({'action': action, 'sender': self._my_pid, **data})
 
-    def is_message_for_me(self, d):
+    def is_message_for_me(self, d: dict) -> bool:
         '''
         Проверяет, относится ли принятый пакет к нашему протоколу обнаружения
         (1) должен быть определнный action
         (2) отправитель sender должен быть не я, а кто-то другой
-        :param d: словарь данных
-        :return: Bool
         '''
         temp = d and d.get('action') in [self.A_SEARCH, self.A_STOP_SCAN] and d.get('sender') != self._my_pid
         return temp
 
-    def run(self):
+    def run(self) -> tuple:
         '''
         Запуск поиска по локальной сети
         :return: кортедж((ip адрес, port), pid)
@@ -64,4 +62,3 @@ if __name__ == '__main__':
     info = Search(pid)
     info.run()
     print('success: ', info)
-# Напишите здесь свой код :-)
