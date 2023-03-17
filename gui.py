@@ -2,13 +2,18 @@
 
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
+from search import Search
+import variables as var
+import random  # !!!!!!!!!!!!!!
 
 
 class Gui:
-    '''Класс создает графический интерфейс'''
+    '''
+    Класс создает графический интерфейс
+    '''
     def __init__(self, my_ip=None):
         self.title='Передача зашифрованных файлов'
-        self.my_ip = my_ip
+        self.my_ip = random.getrandbits(64) # !!!!!!!!!! my_ip
         self.out_ip = 0
 
         self.root = tk.Tk()
@@ -49,13 +54,17 @@ class Gui:
         self.lb_out_text = tk.Label(self.root.text_frame, text='...Здесь будет принятый текст...', bg='yellow')
 
     def call_gui(self):
-        '''Вызов окна программы'''
+        '''
+        Вызов окна программы
+        '''
         self.root.config(menu=self.root.main_menu)
         self.draw_widgets()
         self.root.mainloop()
 
     def draw_widgets(self):
-        '''Прорисовка виджетов'''
+        '''
+        Прорисовка виджетов
+        '''
         self.root.btn_frame.grid(row=0, column=0, sticky='nsew')
 
         self.lb_top.grid(row=0, column=1,  sticky='ew', padx=5)
@@ -74,7 +83,9 @@ class Gui:
         self.lb_out_text.grid(row=1, column=0, sticky='nsew')
 
     def open_file(self):
-        '''Открываем текстовый файл'''
+        '''
+        Открываем текстовый файл
+        '''
         filepath = askopenfilename(
             filetypes = [('Текстовые файлы', '*.txt'), ('Все файлы', '*.*')])
         if not filepath:
@@ -86,7 +97,9 @@ class Gui:
         self.root.title(self.title + f'\t - {filepath}')
 
     def save_file(self):
-        '''Сохраняем текущий текстовый файл'''
+        '''
+        Сохраняем текущий текстовый файл
+        '''
         filepath = asksaveasfilename(
             defaultextension = 'txt',
             filetypes = [('Текстовые файлы', '*.txt'), ('Все файлы', '*.*')],)
@@ -98,7 +111,9 @@ class Gui:
         self.root.title(self.title + f'\t - {filepath}')
 
     def get_help(self):
-        '''Вызов окна справки'''
+        '''
+        Вызов окна справки
+        '''
         help_window = tk.Tk()
         help_window.title('Help')
         help_window.rowconfigure(0, minsize=100, weight=10)
@@ -107,27 +122,45 @@ class Gui:
         lb_help.grid()
 
     def new_text(self):
-        '''Очистка поля ввода текста'''
+        '''
+        Очистка поля ввода текста
+        '''
         self.txt_edit.delete('1.0', tk.END)
 
     def search(self):
-        '''Поиск другого экземпляра программы'''
-        pass
+        '''
+        Поиск другого экземпляра программы
+        '''
+        print('search is running')
+        self.lb_info.configure(text='Поиск начат...')
+        sr = Search(pid=self.my_ip).run()
+        self.lb_out_ip.configure(text=f'Чужой IP:\n{sr[1]}')
+        self.out_ip = sr[1]
+        print('out ip: ', self.out_ip)
+        self.lb_info.configure(text='...')
 
     def get_receiving(self):
-        '''Прием данных'''
+        '''
+        Прием данных
+        '''
         pass
 
     def get_send(self, ):
-        '''Отправка данных'''
+        '''
+        Отправка данных
+        '''
         pass
 
     def get_encrypt(self):
-        '''Шифрование данных'''
+        '''
+        Шифрование данных
+        '''
         pass
 
     def get_decrypt(self):
-        '''Расшифровка данных'''
+        '''
+        Расшифровка данных
+        '''
         pass
 
 
