@@ -15,10 +15,10 @@ class Gui:
         self.root.file_menu.add_command(label="Save", command=self.save_file)
         self.root.file_menu.add_command(label="Open", command=self.open_file)
         self.root.file_menu.add_separator()
-        self.root.file_menu.add_command(label="Exit")
+        self.root.file_menu.add_command(label="Exit", command=self.root.destroy)
 
         self.root.main_menu.add_cascade(label="File", menu=self.root.file_menu)
-        self.root.main_menu.add_cascade(label="Help")
+        self.root.main_menu.add_cascade(label="Help", command=self.get_help)
 
 
 
@@ -93,6 +93,14 @@ class Gui:
             text = self.txt_edit.get('1.0', tk.END)
             output_file.write(text)
         self.root.title(f'текстовый редактор - {filepath}')
+
+    def get_help(self):
+        help_window = tk.Tk()
+        help_window.title('Help')
+        help_window.rowconfigure(0, minsize=100, weight=10)
+        help_window.columnconfigure(0, minsize=100, weight=10)
+        lb_help = tk.Label(help_window, text='blablabla')
+        lb_help.grid()
 
     def new_text(self):
         self.txt_edit.delete('1.0', tk.END)
