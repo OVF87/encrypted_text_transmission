@@ -1,6 +1,7 @@
 # Инициализация класса графического интерфейса
 
 import tkinter as tk
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 
 class Gui:
@@ -11,8 +12,8 @@ class Gui:
         self.root.main_menu = tk.Menu()
         self.root.file_menu = tk.Menu(tearoff=0)
         self.root.file_menu.add_command(label="New", command=self.new_text)
-        self.root.file_menu.add_command(label="Save")
-        self.root.file_menu.add_command(label="Open")
+        self.root.file_menu.add_command(label="Save", command=self.save_file)
+        self.root.file_menu.add_command(label="Open", command=self.open_file)
         self.root.file_menu.add_separator()
         self.root.file_menu.add_command(label="Exit")
 
@@ -68,6 +69,30 @@ class Gui:
 
         self.txt_edit.grid(row=0, column=1, sticky='ew')
         self.lb_out_text.grid(row=1, column=1,sticky='n')
+
+    def open_file(self):
+        '''Открываем файл для редактирования'''
+        filepath = askopenfilename(
+            filetypes = [('Текстовые файлы', '*.txt'), ('Все файлы', '*.*')])
+        if not filepath:
+            return
+        self.txt_edit.delete('1.0', tk.END)
+        with open(filepath, 'r') as input_file:
+            text = input_file.read()
+            self.txt_edit.insert(tk.END, text)
+        self.root.title(f'file - {filepath}')
+
+    def save_file(self):
+        '''Сохраняем текущий файл как новый файл'''
+        filepath = asksaveasfilename(
+            defaultextension = 'txt',
+            filetypes = [('Текстовые файлы', '*.txt'), ('Все файлы', '*.*')],)
+        if not filepath:
+            return
+        with open(filepath, 'w') as output_file:
+            text = self.txt_edit.get('1.0', tk.END)
+            output_file.write(text)
+        self.root.title(f'текстовый редактор - {filepath}')
 
     def new_text(self):
         self.txt_edit.delete('1.0', tk.END)
