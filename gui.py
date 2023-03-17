@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from search import Search
+from network import Networking
 import variables as var
 import random  # !!!!!!!!!!!!!!
 
@@ -42,8 +43,8 @@ class Gui:
         self.lb_info = tk.Label(self.root.btn_frame, text='...')
 
         self.btn_search = tk.Button(self.root.btn_frame, text='Поиск в локальной сети', command=self.search)
-        self.btn_plug = tk.Button(self.root.btn_frame, text='Принять данные',)
-        self.btn_send = tk.Button(self.root.btn_frame, text='Отправить данные',)
+        self.btn_plug = tk.Button(self.root.btn_frame, text='Принять данные',command=self.get_receiving)
+        self.btn_send = tk.Button(self.root.btn_frame, text='Отправить данные',command=self.get_send)
         self.btn_encypt = tk.Button(self.root.btn_frame, text='Зашифровать',)
         self.btn_decrypt = tk.Button(self.root.btn_frame, text='Расшифровать',)
 
@@ -143,13 +144,25 @@ class Gui:
         '''
         Прием данных
         '''
-        pass
+        print('Прием данных...')
+        self.lb_info.configure(text='Прием данных...')
+        connect = Networking('TCP')
+
+        data = connect.receive_data()
+        self.txt_edit.insert('1.0', data)
+        self.lb_info.configure(text='...')
 
     def get_send(self, ):
         '''
         Отправка данных
         '''
-        pass
+        print('data send')
+        self.lb_info.configure(text='Передача данных...')
+        temp = self.txt_edit.get('1.0', tk.END)
+        print(temp)
+        connect = Networking('TCP')
+        connect.send_data(temp.encode())
+        self.lb_info.configure(text='...')
 
     def get_encrypt(self):
         '''
