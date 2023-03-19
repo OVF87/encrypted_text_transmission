@@ -106,10 +106,10 @@ class Networking:
         print('Ожидание клиента...')
         conn, address = self.my_socket.accept()
         print(f'{address[0]}:{address[1]} подключен.')
-        temp =b''
+        temp = b''
         while True:
             print('Получаем данные...')
-            chunk = self.my_socket.recv(self.BUFFER_SIZE)
+            chunk = conn.recv(self.BUFFER_SIZE)
             if chunk:
                 temp += chunk
             else:
