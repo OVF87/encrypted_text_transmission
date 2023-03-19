@@ -150,9 +150,11 @@ class Gui:
         '''
         print('search is running')
         self.lb_info.configure(text='Поиск начат...')
-        sr = Search(pid=self.my_ip).run()
+        sr = Search(self.my_ip, self.my_n, self.my_public_key).run()
         self.lb_out_ip.configure(text=f'Чужой IP:\n{sr[1]}')
-        self.out_ip = sr[1]
+        self.out_ip, self.out_n, self.out_public_key = sr[1:]
+        self.lb_out_n.configure(text=f'Чужой n:\n{self.out_n}')
+        self.lb_out_public_key.configure(text=f'Чужой public_key:\n{self.out_public_key}')
         print('out ip: ', self.out_ip)
         self.lb_info.configure(text='...')
 
