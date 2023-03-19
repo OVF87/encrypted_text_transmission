@@ -10,21 +10,22 @@ class Search:
     A_SEARCH = 'search'
     A_STOP_SCAN = 'stop_scan'
 
-    def __init__(self, pid):
-        assert pid
-        self._my_pid = pid
+    def __init__(self, pid: int, my_n: int, my_public_key: int):
+        self.my_pid = pid
+        self.my_n = my_n
+        self.my_public_key = my_public_key
         self.port_no = var.PORT_NO
         self.my_socket = network.Networking('UDP', broadcast=True)
         self.my_socket.bind()
 
-    def send_action(self, action: str, data=None):
+    def send_action(self, action: str, data: dict):
         '''
-        Форматирует JSON для обмена командами
+        Форматирует JSON для обмена командами и отправляет его
         :param action: имя команды
-        :param data: доп. данные, если надо
+        :param data: доп. данные
         '''
         data = data or {}
-        self.my_socket.send_json_broadcast({'action': action, 'sender': self._my_pid, **data})
+        self.my_socket.send_json_broadcast({'action': action, 'sender': self.my_pid, **data})
 
     def is_message_for_me(self, d: dict) -> bool:
         '''
@@ -32,27 +33,29 @@ class Search:
         (1) должен быть определнный action
         (2) отправитель sender должен быть не я, а кто-то другой
         '''
-        temp = d and d.get('action') in [self.A_SEARCH, self.A_STOP_SCAN] and d.get('sender') != self._my_pid
+        temp = d and d.get('action') in [self.A_SEARCH, self.A_STOP_SCAN] and d.get('sender') != self.my_pid
         return temp
 
     def run(self) -> tuple:
         '''
         Запуск поиска по локальной сети
-        :return: кортедж((ip адрес, port), pid)
+        :return: кортедж((ip адрес, port), pid, n, public_key)
         '''
         while True:
-            self.send_action(self.A_SEARCH) #  рассылаем всем сообщение A_SEARCH
+            self.send_action(self.A_SEARCH, {'n': self.my_n, 'public_key':self.my_public_key}) #  рассылаем всем сообщение A_SEARCH, n, public_key
             data, addr = self.my_socket.recv_json_until(self.is_message_for_me, timeout=5.0) #  ждем приемлемого ответа не более 5 секунд
+            print('data run', data)
             if data: #  если нам что-то пришло
-                action, sender = data['action'], data['sender']
+                action, sender, n, public_key = data['action'], data['sender'], data['n'], data['public_key']
                 if action == self.A_SEARCH: #  кто-то нам отправил A_SEARCH
-                    self.send_action(self.A_STOP_SCAN, {'to_pid': sender}) #  отсылаем ему сообщение остановить сканирование A_STOP_SCAN, указав его PID
-                #elif action == self.A_STOP_SCAN: #  если оно не дошло? тот пир продолжит сканировать дальше...
-                #    if data['to_pid'] != self._my_pid: #  если получили сообщение остановить сканирование, нужно выяснить нам ли оно предназначено
-                #        continue  # это не нам; игнорировать!
+                    print('send stop scan')
+                    self.send_action(self.A_STOP_SCAN, {'to_pid': sender, 'n': self.my_n, 'public_key':self.my_public_key}) #  отсылаем ему сообщение A_STOP_SCAN, указав его PID, n, public_key
+                elif action == self.A_STOP_SCAN:
+                    if data['to_pid'] != self.my_pid:
+                        continue  # это не нам; игнорировать!
                 self.my_socket.__del__()
                 print('addr,sender', addr, sender)
-                return addr, sender
+                return addr, sender, n, public_key
 
 
 if __name__ == '__main__':
