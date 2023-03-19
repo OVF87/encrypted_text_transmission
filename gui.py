@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 from search import Search
 from network import Networking
+from cripto import Cripto
 import variables as var
 import random  # !!!!!!!!!!!!!!
 
@@ -16,7 +17,10 @@ class Gui:
         self.title='Передача зашифрованных файлов'
         self.my_ip = random.getrandbits(64) # !!!!!!!!!! my_ip
         self.out_ip = 0
-
+        self.crp = Cripto()
+        self.my_n, self.my_public_key, self.my_secret_key = self.crp.get_keys()
+        self.out_n = None
+        self.out_public_key = None
         self.root = tk.Tk()
         self.root.title(self.title)
 
@@ -41,6 +45,12 @@ class Gui:
         self.lb_my_ip = tk.Label(self.root.btn_frame, text=f'Мой IP:\n{self.my_ip}')
         self.lb_out_ip = tk.Label(self.root.btn_frame, text=f'Чужой IP:\n{self.out_ip}')
         self.lb_info = tk.Label(self.root.btn_frame, text='...')
+
+        self.lb_my_n = tk.Label(self.root.btn_frame, text=f'Мой n:\n{self.my_n}')
+        self.lb_my_public_key = tk.Label(self.root.btn_frame, text=f'Мой public_key:\n{self.my_public_key}')
+        self.lb_my_secret_key = tk.Label(self.root.btn_frame, text=f'Мой secret_key:\n{self.my_secret_key}')
+        self.lb_out_n = tk.Label(self.root.btn_frame, text=f'Чужой n:\n{self.out_n}')
+        self.lb_out_public_key = tk.Label(self.root.btn_frame, text=f'Чужой public_key:\n{self.out_public_key}')
 
         self.btn_search = tk.Button(self.root.btn_frame, text='Поиск в локальной сети', command=self.search)
         self.btn_plug = tk.Button(self.root.btn_frame, text='Принять данные',command=self.get_receiving)
@@ -79,9 +89,15 @@ class Gui:
         self.btn_encypt.grid(row=6, column=1, sticky='ew', padx=5)
         self.btn_decrypt.grid(row=7, column=1, sticky='ew', padx=5)
 
+        self.lb_my_n.grid(row=3, column=0, sticky='ew', padx=5)
+        self.lb_my_public_key.grid(row=4, column=0, sticky='ew', padx=5)
+        self.lb_my_secret_key.grid(row=5, column=0, sticky='ew', padx=5)
+        self.lb_out_n.grid(row=3, column=2, sticky='ew', padx=5)
+        self.lb_out_public_key.grid(row=4, column=2, sticky='ew', padx=5)
+
         self.root.text_frame.grid(row=0, column=1, sticky='nsew')
-        self.txt_edit.grid(row=0, column=0, sticky='nsew')
-        self.lb_out_text.grid(row=1, column=0, sticky='nsew')
+        self.txt_edit.grid(row=1, column=0, sticky='nsew')
+        self.lb_out_text.grid(row=0, column=0, sticky='nsew')
 
     def open_file(self):
         '''
@@ -149,7 +165,7 @@ class Gui:
         connect = Networking('TCP')
 
         data = connect.receive_data()
-        self.txt_edit.insert('1.0', data)
+        self.lb_out_text.configure(text=data)
         self.lb_info.configure(text='...')
 
     def get_send(self, ):
