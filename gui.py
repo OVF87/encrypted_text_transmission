@@ -53,10 +53,10 @@ class Gui:
         self.lb_out_public_key = tk.Label(self.root.btn_frame, text=f'Чужой public_key:\n{self.out_public_key}')
 
         self.btn_search = tk.Button(self.root.btn_frame, text='Поиск в локальной сети', command=self.search)
-        self.btn_plug = tk.Button(self.root.btn_frame, text='Принять данные',command=self.get_receiving)
-        self.btn_send = tk.Button(self.root.btn_frame, text='Отправить данные',command=self.get_send)
-        self.btn_encypt = tk.Button(self.root.btn_frame, text='Зашифровать',)
-        self.btn_decrypt = tk.Button(self.root.btn_frame, text='Расшифровать',)
+        self.btn_plug = tk.Button(self.root.btn_frame, text='Принять данные', command=self.get_receiving)
+        self.btn_send = tk.Button(self.root.btn_frame, text='Отправить данные', command=self.get_send)
+        self.btn_encypt = tk.Button(self.root.btn_frame, text='Зашифровать', command=self.get_encrypt)
+        self.btn_decrypt = tk.Button(self.root.btn_frame, text='Расшифровать', command=self.get_decrypt)
 
         self.root.text_frame = tk.Frame(self.root, relief=tk.RAISED, bd=2)
         self.root.text_frame.rowconfigure([0, 1], minsize=50)
@@ -186,13 +186,27 @@ class Gui:
         '''
         Шифрование данных
         '''
-        pass
+        self.lb_info.configure(text='Шифрование данных...')
+        print('encrypt is running')
+        text = self.txt_edit.get('1.0', tk.END)
+        text = self.crp.get_encrypt(text, self.my_secret_key, self.my_n)
+        self.txt_edit.delete('1.0', tk.END)
+        self.txt_edit.insert(tk.END, text)
+        print(text)
+        self.lb_info.configure(text='...')
 
     def get_decrypt(self):
         '''
         Расшифровка данных
         '''
-        pass
+        print('decrypt is running')
+        self.lb_info.configure(text='Дешифровка данных...')
+        text = self.lb_out_text.cget('text')
+        text = self.crp.get_decrypt(text, self.out_public_key, self.out_n)
+        self.lb_out_text.configure(text=text)
+        print(text)
+        self.lb_info.configure(text='...')
+
 
 
 
