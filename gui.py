@@ -59,10 +59,13 @@ class Gui:
         self.btn_decrypt = tk.Button(self.root.btn_frame, text='Расшифровать', command=self.get_decrypt)
 
         self.root.text_frame = tk.Frame(self.root, relief=tk.RAISED, bd=2)
-        self.root.text_frame.rowconfigure([0, 1], minsize=50)
-        self.root.text_frame.columnconfigure(0, minsize=50, weight=1)
-        self.scrollbar_msg_list = tk.Scrollbar(self.root.text_frame)
-        self.msg_list = tk.Listbox(self.root.text_frame, height=20, width=30, yscrollcommand=self.scrollbar_msg_list.set)
+        self.root.text_frame.rowconfigure([0, 1, 2], minsize=20)
+        self.root.text_frame.columnconfigure(0, minsize=20, weight=1)
+        self.msg_list = tk.Listbox(self.root.text_frame, height=20, width=30)
+        self.y_scrollbar_msg_list = tk.Scrollbar(self.root.text_frame, command=self.msg_list.yview)
+        self.x_scrollbar_msg_list = tk.Scrollbar(self.root.text_frame, orient="horizontal", command=self.msg_list.xview)
+
+        self.msg_list.configure(xscrollcommand=self.x_scrollbar_msg_list.set,  yscrollcommand=self.y_scrollbar_msg_list.set)
         self.scrollbar_text_edit = tk.Scrollbar(self.root.text_frame)
         self.txt_edit = tk.Text(self.root.text_frame, yscrollcommand=self.scrollbar_text_edit.set)
         self.lb_out_text = tk.Label(self.root.text_frame, text='...Здесь будет принятый текст...', bg='yellow')
@@ -99,11 +102,12 @@ class Gui:
         self.lb_out_public_key.grid(row=4, column=2, sticky='ew', padx=5)
 
         self.root.text_frame.grid(row=0, column=1, sticky='nsew')
-        self.scrollbar_msg_list.grid(row=0, column=2, sticky='ns')
+        self.y_scrollbar_msg_list.grid(row=0, column=2, sticky='ns')
+        self.x_scrollbar_msg_list.grid(row=1, column=0, sticky='sew')
         self.msg_list.grid(row=0, column=0, sticky='nsew')
         self.scrollbar_text_edit.grid(row=2, column=2, sticky='ns')
-        self.txt_edit.grid(row=2, column=0, sticky='nsew')
-        self.lb_out_text.grid(row=1, column=0, sticky='nsew')
+        self.txt_edit.grid(row=3, column=0, sticky='nsew')
+        self.lb_out_text.grid(row=2, column=0, sticky='nsew')
 
     def open_file(self):
         '''
