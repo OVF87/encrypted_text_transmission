@@ -14,8 +14,8 @@ class Search:
         self.my_pid = pid
         self.my_n = my_n
         self.my_public_key = my_public_key
-        self.port_no = var.PORT_NO
-        self.my_socket = network.Networking('UDP', broadcast=True)
+        self.port_no = var.PORT_NO[0]
+        self.my_socket = network.Networking('UDP', broadcast=True, port_no=self.port_no)
         self.my_socket.bind()
 
     def send_action(self, action: str, data: dict):
@@ -44,7 +44,6 @@ class Search:
         while True:
             self.send_action(self.A_SEARCH, {'n': self.my_n, 'public_key':self.my_public_key}) #  рассылаем всем сообщение A_SEARCH, n, public_key
             data, addr = self.my_socket.recv_json_until(self.is_message_for_me, timeout=5.0) #  ждем приемлемого ответа не более 5 секунд
-            print('data run', data)
             if data: #  если нам что-то пришло
                 action, sender, n, public_key = data['action'], data['sender'], data['n'], data['public_key']
                 if action == self.A_SEARCH: #  кто-то нам отправил A_SEARCH
@@ -54,7 +53,7 @@ class Search:
                     if data['to_pid'] != self.my_pid:
                         continue  # это не нам; игнорировать!
                 self.my_socket.__del__()
-                print('addr,sender', addr, sender)
+                print('addr,sender', addr, sender, n, public_key)
                 return addr, sender, n, public_key
 
 
