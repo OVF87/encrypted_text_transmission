@@ -43,6 +43,17 @@ class Networking:
         print(type_socket, 'socked created')
         return sock
 
+    def __del__(self):
+        print('closing socket')
+        self.my_socket.close()
+
+    def bind(self, to=''):
+        '''
+        Привязаывается к порту, то есть начинает слушать с него сообщения
+        :param to: интерфейс ('' - любой)
+        '''
+        self.my_socket.bind((to, self.port_no))
+
     def recv_json(self) -> tuple:
         '''
         Получает JSON из сокета
@@ -74,13 +85,6 @@ class Networking:
                 return data, addr
         return None, None
 
-    def bind(self, to=''):
-        '''
-        Привязаывается к порту, то есть начинает слушать с него сообщения
-        :param to: интерфейс ('' - любой)
-        '''
-        self.my_socket.bind((to, self.port_no))
-
     def send_json(self, j: str, to):
         '''
         Отправляет JSON данные
@@ -97,33 +101,16 @@ class Networking:
         '''
         return self.send_json(j, '<broadcast>')
 
-    def __del__(self):
-        print('closing socket')
-        self.my_socket.close()
-
-    '''def recv_tcp(self):
-        temp =b''
-        print('recv data ...')
-        chunk = self.my_socket.recv(self.buffer_size)
-        print('chunk inner ', chunk)
-        while chunk:
-
-            if chunk:
-                temp += chunk
-                chunk = conn.recv(self.buffer_size)
-            else:
-                break
-        print('recv tcp <-', chunk)
-        return chunk'''
-
     def tran_tcp(self, data, addr):
         # Отправка файла блоками по buffer_size байта.
         print('Передача данных...')
         data = data.encode()
+        print('data encode:', data)
         while data:
             read_bytes = data[:self.buffer_size]
             data = data[self.buffer_size:]
             self.my_socket.send(read_bytes)
+        self.my_socket.send(b'EOF')
         print('Отправлено.')
 
 
