@@ -8,65 +8,67 @@ from search import Search
 import variables as var
 
 
-
 port_no = var.PORT_NO
 window = Gui()
 crp = Cripto()
 
 
 def main():
-    def enc(*args):
-        # Привязка функции расшифровки модуля cripto к графическому интерфейсу
-        text = window.get_text()
-        window.add_msg_in_list('I -> ' + text)
-        enc_text = crp.get_encrypt(text, window.my_public_key, window.my_n)
-        window.add_msg_in_list('I ENCRYPTED -> ' + enc_text)
-        window.pull_text(enc_text)
-
-
-    def decr(*args):
-        # Привязка функции зашифровки модуля cripto к графическому интерфейсу
-        text = window.get_text()
-        decr_text = crp.get_decrypt(text, window.my_secret_key, window.my_n)
-        window.pull_text(decr_text)
+    def enc(data: str) -> str:
+        # Зашифровка сообщения
+        enc_text = crp.get_encrypt(data, window.out_public_key, window.out_n)
+        return enc_text
 
 
     def incoming_message(data):
-        # Вывод входящего сообщения в графический интерфейс
-        print('incoming <- ', data)
-        window.add_msg_in_list('пришло <-' + data.decode("utf-8"))
-
-
-    def send_msg(_, ):
-        # Отправка сообщения
-        text = window.get_text()
-        print('send->', text)
-        network2.tran_tcp(text, window.out_ip)
-
+        window.progressbar.start()
+        # Вывод зашифрованого и расшифрованого входящего сообщения в графический интерфейс
+        data = data.decode("utf-8")
+        window.add_msg_in_list('Зашифровано <<<')
+        window.add_msg_in_list(data)
+        window.add_msg_in_list('Расшифровано:')
+        window.add_msg_in_list(crp.get_decrypt(data, window.my_secret_key, window.my_n))
+        window.progressbar.stop()
 
     def run_reader_thread(callback):
         '''
         Запускает отдельный поток, чтобы получать данные из сокета
         :param callback: функция, которая вызывается, если получены данные
         '''
-
         def reader():
-            # функция чтения сообщения
-            conn, out_addr = network1.my_socket.accept()
-            while True:
-                print('wait connect')
-                try:
-                    data = conn.recv(1024)
-                    if data:
-                        callback(data)
+            temp =b''
+            print('wait connect')
+            try:
+                conn, out_addr = network1.my_socket.accept()
+                print('recv data ...')
+                while True:
+                    chunk = conn.recv(var.BUFFER_SIZE)
+                    if b'EOF' == chunk:
+                        callback(temp)
+                        temp =b''
                     else:
-                        break
-                except :
-                    pass
+                        temp += chunk
+            except:
+                pass
         # daemon=True, чтобы не зависал, если выйдет основной поток
         thread = threading.Thread(target=reader, daemon=True)
         thread.start()
         return thread
+
+    def send_msg(_, ):
+        # Шифрование и отправка сообщения
+        window.progressbar.start()
+        window.progressbar.step(10)
+        text = window.get_text()
+        window.add_msg_in_list('Исходный текст:')
+        window.add_msg_in_list(text)
+        enc_text = crp.get_encrypt(text, window.out_public_key, window.out_n)
+        window.add_msg_in_list('Зашифровано >>>')
+        window.add_msg_in_list(enc_text)
+        print('send->', enc_text)
+        network2.tran_tcp(enc_text, window.out_ip)
+        window.progressbar.stop()
+        window.new_text()
 
 
     my_id = random.getrandbits(64)
@@ -88,9 +90,7 @@ def main():
     window.lb_out_n.configure(text=f'Чужой n:\n{window.out_n}')
     window.lb_out_public_key.configure(text=f'Чужой public_key:\n{window.out_public_key}')
 
-    # Привязка кнопок к графическому интерфейсу
-    window.btn_encrypt.bind('<ButtonPress-1>', enc)
-    window.btn_decrypt.bind('<ButtonPress-1>', decr)
+    # Привязка кнопки к графическому интерфейсу
     window.btn_send.bind('<ButtonPress-1>', send_msg)
 
     # Распределение портов для передачи данных и прослушивания
@@ -111,7 +111,9 @@ def main():
     # Вызов графического интерфейса
     window.call_gui()
 
-
+    # Закрытие сокетов
+    network1.my_socket.close()
+    network2.my_socket.close()
 
 if __name__ == '__main__':
     main()
