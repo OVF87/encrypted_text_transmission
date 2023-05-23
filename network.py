@@ -44,6 +44,9 @@ class Networking:
         return sock
 
     def __del__(self):
+        '''
+        Закрытие сокета
+        '''
         print('closing socket')
         self.my_socket.close()
 
