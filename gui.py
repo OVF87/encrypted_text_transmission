@@ -11,7 +11,7 @@ class Gui:
     Класс создает графический интерфейс
     '''
     def __init__(self, my_ip=None):
-        self.title='Передача зашифрованных файлов'
+        self.title='Передача зашифрованного текста'
         self.my_id = None
         self.my_ip = var.MY_ADDRESS
         self.out_id = None
@@ -44,13 +44,13 @@ class Gui:
         '''
         self.root.main_menu = tk.Menu()
         self.root.file_menu = tk.Menu(tearoff=0)
-        self.root.file_menu.add_command(label='New', command=self.new_text)
-        self.root.file_menu.add_command(label='Save', command=self.save_file)
-        self.root.file_menu.add_command(label='Open', command=self.open_file)
+        self.root.file_menu.add_command(label='Очистить текстовые поля', command=self.new_text)
+        self.root.file_menu.add_command(label='Сохранить в текстовый файл', command=self.save_file)
+        self.root.file_menu.add_command(label='Открыть текстовый файл', command=self.open_file)
         self.root.file_menu.add_separator()
-        self.root.file_menu.add_command(label='Exit', command=self.root.destroy)
-        self.root.main_menu.add_cascade(label='File', menu=self.root.file_menu)
-        self.root.main_menu.add_cascade(label='Help', command=self.get_help)
+        self.root.file_menu.add_command(label='Выход', command=self.root.destroy)
+        self.root.main_menu.add_cascade(label='Меню', menu=self.root.file_menu)
+        self.root.main_menu.add_cascade(label='Помощь', command=self.get_help)
         self.root.config(menu=self.root.main_menu)
 
     def create_widget(self):
@@ -70,15 +70,14 @@ class Gui:
         self.lb_my_ip = tk.Label(self.root.info_frame, text=f'Мой IP:\n{self.my_ip}')
         self.lb_my_id = tk.Label(self.root.info_frame, text=f'Мой ID:\n{self.my_id}')
         self.lb_my_n = tk.Label(self.root.info_frame, text=f'Мой n:\n{self.my_n}')
-        self.lb_my_public_key = tk.Label(self.root.info_frame, text=f'Мой public_key:\n{self.my_public_key}')
-        self.lb_my_secret_key = tk.Label(self.root.info_frame, text=f'Мой secret_key:\n{self.my_secret_key}')
-        self.progressbar = ttk.Progressbar(self.root.info_frame, orient='horizontal', mode='indeterminate')
+        self.lb_my_public_key = tk.Label(self.root.info_frame, text=f'Мой Public key:\n{self.my_public_key}')
+        self.lb_my_secret_key = tk.Label(self.root.info_frame, text=f'Мой Secret key:\n{self.my_secret_key}')
 
         #  Создание текстовых меток о чужой информации
         self.lb_out_ip = tk.Label(self.root.info_frame, text=f'Чужой IP:\n{self.out_ip}')
         self.lb_out_id = tk.Label(self.root.info_frame, text=f'Чужой ID:\n{self.out_id}')
         self.lb_out_n = tk.Label(self.root.info_frame, text=f'Чужой n:\n{self.out_n}')
-        self.lb_out_public_key = tk.Label(self.root.info_frame, text=f'Чужой public_key:\n{self.out_public_key}')
+        self.lb_out_public_key = tk.Label(self.root.info_frame, text=f'Чужой Public key:\n{self.out_public_key}')
 
         #  Создание текстовых полей
         self.root.text_frame = tk.Frame(self.root, relief=tk.RAISED, bd=2)
@@ -93,7 +92,7 @@ class Gui:
         self.txt_edit = tk.Text(self.root.text_frame, yscrollcommand=self.scrollbar_text_edit.set)
 
         #  Создание кнопоки
-        self.btn_send = tk.Button(self.root.text_frame, text='Отправить данные')#, command=self.get_send)
+        self.btn_send = tk.Button(self.root.text_frame, text='Отправить данные')
 
 
 
@@ -110,7 +109,6 @@ class Gui:
         self.lb_my_n.grid(row=3, column=0, sticky='ew', padx=5)
         self.lb_my_public_key.grid(row=4, column=0, sticky='ew', padx=5)
         self.lb_my_secret_key.grid(row=5, column=0, sticky='ew', padx=5)
-        self.progressbar.grid(row=6, column=0, sticky='ew', padx=5)
 
         #  Текстовые метки чужой информации
         self.lb_out_id.grid(row=7, column=0, sticky='ew', padx=5)
@@ -143,11 +141,17 @@ class Gui:
         text = self.txt_edit.get('1.0', tk.END)
         return text
 
-    def new_text(self):
+    def new_text(self, all = 1):
         '''
-        Очистка поля ввода текста
+        Очистка текстовых полей
+        :param all: если True очистка поля ввода текста и истории сообщений,
+        если False очистка только поля ввода
         '''
         self.txt_edit.delete('1.0', tk.END)
+        if all:
+            self.msg_list.configure(state='normal')
+            self.msg_list.delete('1.0', tk.END)
+            self.msg_list.configure(state='disabled')        
 
     def open_file(self):
         '''
@@ -173,7 +177,7 @@ class Gui:
         if not filepath:
             return
         with open(filepath, 'w') as output_file:
-            text = self.txt_edit.get('1.0', tk.END)
+            text = self.msg_list.get('1.0', tk.END)
             output_file.write(text)
         self.root.title(self.title + f'\t - {filepath}')
 
