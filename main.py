@@ -15,20 +15,25 @@ crp = Cripto()
 
 def main():
     def enc(data: str) -> str:
-        # Зашифровка сообщения
+        '''
+        Зашифровка сообщения
+        :param data: текст сообщения
+        '''
         enc_text = crp.get_encrypt(data, window.out_public_key, window.out_n)
         return enc_text
 
 
     def incoming_message(data):
-        window.progressbar.start()
-        # Вывод зашифрованого и расшифрованого входящего сообщения в графический интерфейс
+        '''
+        Вывод зашифрованого и расшифрованого 
+        входящего сообщения в графический интерфейс
+        :param data: текст сообщения
+        '''        
         data = data.decode("utf-8")
         window.add_msg_in_list('Зашифровано <<<')
         window.add_msg_in_list(data)
-        window.add_msg_in_list('Расшифровано:')
+        window.add_msg_in_list('Расшифровано <<<:')
         window.add_msg_in_list(crp.get_decrypt(data, window.my_secret_key, window.my_n))
-        window.progressbar.stop()
 
     def run_reader_thread(callback):
         '''
@@ -55,20 +60,19 @@ def main():
         thread.start()
         return thread
 
-    def send_msg(_, ):
-        # Шифрование и отправка сообщения
-        window.progressbar.start()
-        window.progressbar.step(10)
+    def send_msg(self):
+        '''
+        Шифрование и отправка сообщения
+        '''
         text = window.get_text()
         window.add_msg_in_list('Исходный текст:')
         window.add_msg_in_list(text)
-        enc_text = crp.get_encrypt(text, window.out_public_key, window.out_n)
+        crp_text = crp.get_encrypt(text, window.out_public_key, window.out_n)
         window.add_msg_in_list('Зашифровано >>>')
-        window.add_msg_in_list(enc_text)
-        print('send->', enc_text)
-        network2.tran_tcp(enc_text, window.out_ip)
-        window.progressbar.stop()
-        window.new_text()
+        window.add_msg_in_list(crp_text)
+        print('send->', crp_text)
+        network2.tran_tcp(crp_text, window.out_ip)
+        window.new_text(0)
 
 
     my_id = random.getrandbits(64)
